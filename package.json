@@ -1,5 +1,10 @@
 {
-	"name": "skeleton",
+	"name": "@atom-forge/skeleton",
+	"description": "Fullstack SvelteKit starter: typed RPC, Prisma, Tailwind, AI workflow",
+	"author": {
+		"name": "Gergely Laborci",
+		"url": "https://github.com/laborci"
+	},
 	"private": true,
 	"version": "0.0.1",
 	"type": "module",

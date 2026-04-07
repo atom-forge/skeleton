@@ -28,6 +28,14 @@ See `work/contribution/rules/architecture.md` for the full spec.
 
 ## Getting Started
 
+### 0. Create a new project from this template
+
+```sh
+bunx degit atom-forge/skeleton my-app
+cd my-app
+git init
+```
+
 ### 1. Install dependencies
 
 ```sh
