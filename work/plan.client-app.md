@@ -103,6 +103,16 @@ export function createI18nService(config: ClientConfig, _services: ClientService
 
 ## Feladatok
 
-- [ ] `task.CLIENT-APP-01-scaffold.md` — `src/lib/client/` alap struktúra (config, services/rpc + i18n, modules, index)
+- [x] `task.CLIENT-APP-01-scaffold.md` — `src/lib/client/` alap struktúra (config, services/rpc + i18n, modules, index)
 - [ ] `task.CLIENT-APP-02-wire.md` — `+layout.svelte` bekötés, `src/routes/client.ts` eltávolítása, érintett route-ok frissítése
 - [ ] `task.CLIENT-APP-03-rules.md` — `work/contribution/rules/architecture.md` kiegészítése a clientApp szabályokkal, guide írása
+
+---
+
+## CLIENT-APP-01 Key Decisions
+
+- `RpcConfig` uses `config.rpc.apiPrefix` (not a hardcoded `'/api'`) — keeps the prefix configurable at wire-time via `$env/static/public`.
+- `ClientModules` is typed as `Record<string, never>` for an empty-but-sound shape. `createClientModules` still accepts all three canonical args to maintain factory signature consistency.
+- `i18n.svelte.ts` uses `.svelte.ts` extension because `$state` rune lives inside the factory closure.
+- `src/routes/client.ts` left untouched — removal is scoped to CLIENT-APP-02-wire.
+- Guide created at `work/docs/guides/client-app.md`.
