@@ -27,10 +27,10 @@ Config is assembled by `createClientConfig()` (defined in `src/lib/client/config
 ```svelte
 <!-- src/routes/+layout.svelte -->
 <script lang="ts">
-    import { createClientApp, setClientApp } from '$lib/client';
+    import { setClientApp } from '$lib/client';
     import { createClientConfig } from '$lib/client/config';
 
-    setClientApp(createClientApp(createClientConfig()));
+    setClientApp(createClientConfig());
 </script>
 ```
 

@@ -9,16 +9,12 @@ export type ClientApp = {
 	modules: ReturnType<typeof createClientModules>;
 };
 
-export function createClientApp(config: ClientConfig): ClientApp {
-	const services = createClientServices(config);
-	const modules = createClientModules(config, services);
-	return {config, services, modules};
-}
-
 const CLIENT_APP_KEY = Symbol('ClientApp');
 
-export function setClientApp(app: ClientApp): ClientApp {
-	return setContext(CLIENT_APP_KEY, app);
+export function setClientApp(config: ClientConfig): ClientApp {
+	const services = createClientServices(config);
+	const modules = createClientModules(config, services);
+	return setContext(CLIENT_APP_KEY, {config, services, modules});
 }
 
 export function getClientApp(): ClientApp {
