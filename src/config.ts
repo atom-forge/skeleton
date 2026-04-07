@@ -10,6 +10,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const env = new EnvReader(path.resolve(__dirname, ".."));
 
 export const config: Config = {
+	app: {
+		apiPrefix: env.string("API_PREFIX", "/api"),
+	},
 	database: {
 		connectionString: env.string("DATABASE_URL"),
 		max: env.int("DB_POOL_MAX", 20),
@@ -17,5 +20,11 @@ export const config: Config = {
 		idleTimeoutMillis: env.int("DB_POOL_IDLE_TIMEOUT", 30000),
 		connectionTimeoutMillis: env.int("DB_POOL_CONN_TIMEOUT", 2000),
 		maxLifetimeSeconds: env.int("DB_POOL_LIFETIME", 60 * 60),
+	},
+	storage: {
+		uploadDir:   env.string("STORAGE_UPLOAD_DIR"),
+		thumbDir:    env.string("STORAGE_THUMB_DIR"),
+		focusSecret: env.string("STORAGE_FOCUS_SECRET"),
+		variants:    {},
 	},
 } as const;
