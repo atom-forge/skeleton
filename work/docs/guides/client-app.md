@@ -20,19 +20,25 @@ src/lib/client/
 
 ## Initialization
 
-`ClientApp` is **not a singleton**. It is created in `+layout.svelte` and shared via Svelte context:
+`ClientApp` is **not a singleton**. It is created in `+layout.svelte` and shared via Svelte context.
+
+Config is assembled by `createClientConfig()` (defined in `src/lib/client/config.ts`), which reads `$env/static/public` variables:
 
 ```svelte
 <!-- src/routes/+layout.svelte -->
 <script lang="ts">
     import { createClientApp, setClientApp } from '$lib/client';
-    import { PUBLIC_API_PREFIX, PUBLIC_DEFAULT_LOCALE } from '$env/static/public';
+    import { createClientConfig } from '$lib/client/config';
 
-    setClientApp(createClientApp({
-        rpc: { apiPrefix: PUBLIC_API_PREFIX },
-        i18n: { defaultLocale: PUBLIC_DEFAULT_LOCALE },
-    }));
+    setClientApp(createClientApp(createClientConfig()));
 </script>
+```
+
+Required public env vars (add to `.env` and `.env.example`):
+
+```
+PUBLIC_API_PREFIX=/api
+PUBLIC_DEFAULT_LOCALE=hu
 ```
 
 Consume anywhere below in the tree:

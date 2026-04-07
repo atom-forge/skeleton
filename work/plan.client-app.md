@@ -104,8 +104,17 @@ export function createI18nService(config: ClientConfig, _services: ClientService
 ## Feladatok
 
 - [x] `task.CLIENT-APP-01-scaffold.md` — `src/lib/client/` alap struktúra (config, services/rpc + i18n, modules, index)
-- [ ] `task.CLIENT-APP-02-wire.md` — `+layout.svelte` bekötés, `src/routes/client.ts` eltávolítása, érintett route-ok frissítése
+- [x] `task.CLIENT-APP-02-wire.md` — `+layout.svelte` bekötés, `src/routes/client.ts` eltávolítása, érintett route-ok frissítése
 - [ ] `task.CLIENT-APP-03-rules.md` — `work/contribution/rules/architecture.md` kiegészítése a clientApp szabályokkal, guide írása
+
+---
+
+## CLIENT-APP-02 Key Decisions
+
+- `createClientConfig()` lives in `src/lib/client/config.ts` alongside the `ClientConfig` type — mirrors the server pattern (config assembly co-located with the type). Call site in `+layout.svelte` stays to one line: `setClientApp(createClientApp(createClientConfig()))`.
+- Public env vars required: `PUBLIC_API_PREFIX` and `PUBLIC_DEFAULT_LOCALE` (SvelteKit `$env/static/public` convention). Added to both `.env` and `.env.example`.
+- `setClientApp()` is called unconditionally in the layout (no `browser` guard). SSR context is empty — callers of `getClientApp()` must be in client-only code paths (event handlers, `onMount`).
+- `src/routes/client.ts` deleted; `+page.svelte` updated to `getClientApp().services.rpc`.
 
 ---
 

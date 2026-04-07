@@ -1,12 +1,14 @@
 <script lang="ts">
-	import { client } from './client';
+	import { getClientApp } from '$lib/client';
 	import type { RpcResult } from '@atom-forge/rpc';
 	import { Button, Card, Table, type ColumnDef } from '@atom-forge/ui';
 	import { RefreshCw } from 'lucide-svelte';
 
 	let { data } = $props();
 
-	type Users = RpcResult<typeof client.user.all>;
+	const { rpc } = getClientApp().services;
+
+	type Users = RpcResult<typeof rpc.user.all>;
 	let users = $state<Users>([]);
 
 	let columns: ColumnDef<Users[number]>[] = $state([
@@ -16,7 +18,7 @@
 	]);
 
 	async function loadUsers() {
-		const res = await client.user.all.$get();
+		const res = await rpc.user.all.$get();
 		if (res.isOK()) users = res.result;
 	}
 </script>
