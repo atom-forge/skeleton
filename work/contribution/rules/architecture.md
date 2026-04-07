@@ -1,6 +1,6 @@
 ---
-tags: [backend, api, frontend]
-applies_to: Any task that creates or modifies services, modules, routes, or API endpoints.
+tags: [backend, api]
+applies_to: Any task that creates or modifies server-side services, modules, routes, or API endpoints.
 ---
 
 # System Architecture: A Comprehensive Guide for LLMs and Developers
@@ -418,3 +418,5 @@ src/
 | 13 | Read all environment variables through the `EnvReader` class from `@atom-forge/env-reader`, never `process.env` directly. |
 | 14 | Do NOT use `try-catch` to swallow business errors. Throw custom errors (e.g., `BadRequestError` from `src/lib/errors.ts`). |
 | 15 | The `server` object is created once in `hooks.server.ts`. Its `config`, `services`, and `modules` are injected into `event.locals`; its `api` is used locally. Never instantiate services, modules, or api elsewhere. |
+
+
