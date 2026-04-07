@@ -1,5 +1,5 @@
 import type {Services} from "../services";
-import type {Config} from "$lib/app/config";
+import type {Config} from "$lib/server/config";
 import {createUserModule} from "./user";
 
 export type Modules = {

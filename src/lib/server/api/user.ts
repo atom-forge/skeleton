@@ -1,8 +1,8 @@
 import {rpc} from '@atom-forge/rpc';
 import {z} from 'zod';
-import type {Config} from "$lib/app/config";
-import type {Services} from "$lib/app/services";
-import type {Modules} from "$lib/app/modules";
+import type {Config} from "$lib/server/config";
+import type {Services} from "$lib/server/services";
+import type {Modules} from "$lib/server/modules";
 
 
 export function createUserApi(config: Config, services: Services, modules: Modules) {
@@ -22,4 +22,3 @@ export function createUserApi(config: Config, services: Services, modules: Modul
 			}),
 	}
 }
-

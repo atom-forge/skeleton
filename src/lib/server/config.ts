@@ -1,5 +1,5 @@
-import type {PrismaConfig} from "$lib/app/services/prisma";
-import type {StorageConfig} from "$lib/app/services/storage";
+import type {PrismaConfig} from "$lib/server/services/prisma";
+import type {StorageConfig} from "$lib/server/services/storage";
 
 export type AppConfig = {
 	app: {

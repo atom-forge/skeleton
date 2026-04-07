@@ -1,6 +1,6 @@
 import {createLocalProvider, type ImageVariantMap, type StorageProvider} from "@atom-forge/attachment";
-import type {Config} from "$lib/app/config";
-import type {Services} from "$lib/app/services";
+import type {Config} from "$lib/server/config";
+import type {Services} from "$lib/server/services";
 
 export type StorageConfig = {
 	storage: {

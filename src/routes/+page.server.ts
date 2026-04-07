@@ -1,6 +1,6 @@
 import type {PageServerLoad} from './$types';
 
 export const load: PageServerLoad = async ({locals}) => {
-	const userCount = await locals.app.modules.user.count();
+	const userCount = await locals.modules.user.count();
 	return {userCount};
 };

@@ -1,6 +1,6 @@
 import {createPrismaService} from './prisma.ts';
 import {createStorageService} from './storage.ts';
-import type {Config} from "$lib/app/config";
+import type {Config} from "$lib/server/config";
 
 export type Services = {
 	prisma:   ReturnType<typeof createPrismaService>;

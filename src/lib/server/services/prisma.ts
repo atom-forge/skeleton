@@ -1,7 +1,7 @@
 import {PrismaClient} from "../../../../prisma/client/client.ts";
 import type {PoolConfig} from "pg";
 import {createPrisma} from "$lib/shared/create-prisma";
-import type {Config} from "$lib/app/config";
+import type {Config} from "$lib/server/config";
 import type {Services} from "../services";
 
 export type PrismaConfig = { database: PoolConfig };

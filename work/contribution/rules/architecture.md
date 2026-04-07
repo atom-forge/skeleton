@@ -37,9 +37,9 @@ The system comprises four primary layers, initialized in a strict sequence.
 - **Role**: Expose module functionality over the network as RPC endpoints. No business logic lives here — Api handlers only call module methods and return results.
 - **Dependencies**: Can depend on `config`, Services, and Modules.
 
-### 2.4. App
-- **Role**: The assembled application object. Created by `createApp(config)`, it holds all four layers and is the single value passed around at runtime.
-- **Lifecycle**: Created once, in `hooks.server.ts`, and injected into `event.locals.app`.
+### 2.4. Server
+- **Role**: The assembled server object. Created by `createServer(config)`, it holds all four layers and is the single value used at startup.
+- **Lifecycle**: Created once, in `hooks.server.ts`. Its `config`, `services`, and `modules` fields are injected into `event.locals`; its `api` field is used locally to wire up the RPC handler.
 
 ---
 
@@ -54,9 +54,9 @@ Every Service, Module, and Api handler is created by a dedicated **factory funct
 A service factory receives exactly two arguments: `config` first, then `services`.
 
 ```typescript
-// src/lib/app/services/foo.ts
-import type {Config} from "$lib/app/config";
-import type {Services} from "$lib/app/services";
+// src/lib/server/services/foo.ts
+import type {Config} from "$lib/server/config";
+import type {Services} from "$lib/server/services";
 
 export type FooConfig = { foo: { apiKey: string } };
 
@@ -76,10 +76,10 @@ export function createFooService(config: Config, services: Services) {
 A module factory receives exactly three arguments: `config` first, then `services`, then `modules`.
 
 ```typescript
-// src/lib/app/modules/bar.ts
-import type {Config} from "$lib/app/config";
-import type {Services} from "$lib/app/services";
-import type {Modules} from "$lib/app/modules";
+// src/lib/server/modules/bar.ts
+import type {Config} from "$lib/server/config";
+import type {Services} from "$lib/server/services";
+import type {Modules} from "$lib/server/modules";
 
 export function createBarModule(config: Config, services: Services, modules: Modules) {
     // Internal, private helper functions
@@ -103,12 +103,12 @@ export function createBarModule(config: Config, services: Services, modules: Mod
 An Api factory receives exactly three arguments: `config` first, then `services`, then `modules`. It uses the `rpc` helper from `@atom-forge/rpc` to define endpoints.
 
 ```typescript
-// src/lib/app/api/bar.ts
+// src/lib/server/api/bar.ts
 import {rpc} from '@atom-forge/rpc';
 import {z} from 'zod';
-import type {Config} from "$lib/app/config";
-import type {Services} from "$lib/app/services";
-import type {Modules} from "$lib/app/modules";
+import type {Config} from "$lib/server/config";
+import type {Services} from "$lib/server/services";
+import type {Modules} from "$lib/server/modules";
 
 export function createBarApi(config: Config, services: Services, modules: Modules) {
     return {
@@ -129,7 +129,7 @@ export function createBarApi(config: Config, services: Services, modules: Module
 A module does not have to be flat. If a module grows large, it can be decomposed into submodule factories. The submodule's return value becomes part of the parent's public API.
 
 ```typescript
-// src/lib/app/modules/courses/sessions.ts
+// src/lib/server/modules/courses/sessions.ts
 export function createSessionsSubmodule(config: Config, services: Services, modules: Modules) {
     return {
         async create(courseId: string, data: SessionData) { /* ... */ },
@@ -137,7 +137,7 @@ export function createSessionsSubmodule(config: Config, services: Services, modu
     };
 }
 
-// src/lib/app/modules/courses/index.ts
+// src/lib/server/modules/courses/index.ts
 export function createCoursesModule(config: Config, services: Services, modules: Modules) {
     const sessions = createSessionsSubmodule(config, services, modules);
 
@@ -152,7 +152,7 @@ export function createCoursesModule(config: Config, services: Services, modules:
 
 **File layout for a decomposed module:**
 ```
-src/lib/app/modules/courses/
+src/lib/server/modules/courses/
 ├── index.ts       # parent factory — the only file registered in Modules
 ├── sessions.ts    # submodule
 └── groups.ts      # submodule
@@ -165,12 +165,12 @@ src/lib/app/modules/courses/
 Each component that requires configuration defines and exports its own `...Config` type. The central `Config` for the application is an **intersection** of all these individual types. This ensures each component's configuration is self-contained and prevents naming collisions.
 
 ```typescript
-// src/lib/app/services/prisma.ts
+// src/lib/server/services/prisma.ts
 export type PrismaConfig = { database: PoolConfig };
 
-// src/lib/app/config.ts
-import type {PrismaConfig} from "$lib/app/services/prisma";
-import type {AuthConfig} from "$lib/app/modules/auth";
+// src/lib/server/config.ts
+import type {PrismaConfig} from "$lib/server/services/prisma";
+import type {AuthConfig} from "$lib/server/modules/auth";
 
 export type Config =
     & PrismaConfig
@@ -187,8 +187,8 @@ To ensure maximum type safety and reduce boilerplate, the `Services`, `Modules`,
 - **DO NOT** add an explicit return type annotation to a factory function. Let TypeScript infer it.
 
 ```typescript
-// src/lib/app/services/index.ts
-import type {Config} from "$lib/app/config";
+// src/lib/server/services/index.ts
+import type {Config} from "$lib/server/config";
 import {createPrismaService} from './prisma';
 
 export type Services = {
@@ -203,9 +203,9 @@ export function createServices(config: Config): Services {
 ```
 
 ```typescript
-// src/lib/app/modules/index.ts
-import type {Config} from "$lib/app/config";
-import type {Services} from "$lib/app/services";
+// src/lib/server/modules/index.ts
+import type {Config} from "$lib/server/config";
+import type {Services} from "$lib/server/services";
 import {createUserModule} from './user';
 
 export type Modules = {
@@ -220,10 +220,10 @@ export function createModules(config: Config, services: Services): Modules {
 ```
 
 ```typescript
-// src/lib/app/api/index.ts
-import type {Config} from "$lib/app/config";
-import type {Services} from "$lib/app/services";
-import type {Modules} from "$lib/app/modules";
+// src/lib/server/api/index.ts
+import type {Config} from "$lib/server/config";
+import type {Services} from "$lib/server/services";
+import type {Modules} from "$lib/server/modules";
 import {createUserApi} from './user';
 
 export type Api = {
@@ -239,26 +239,26 @@ export function createApi(config: Config, services: Services, modules: Modules):
 
 ---
 
-### 3.4. The `App` Type and `createApp()`
+### 3.4. The `Server` Type and `createServer()`
 
-The `App` type bundles all layers. It is assembled by `createApp(config)` in `src/lib/app/index.ts`.
+The `Server` type bundles all layers. It is assembled by `createServer(config)` in `src/lib/server/index.ts`.
 
 ```typescript
-// src/lib/app/index.ts
-import type {Config} from "$lib/app/config";
+// src/lib/server/index.ts
+import type {Config} from "$lib/server/config";
 import type {DeepReadonly} from "@atom-forge/env-reader";
 import {createServices} from "./services";
 import {createModules} from "./modules";
 import {createApi} from "./api";
 
-export type App = {
+export type Server = {
     config: DeepReadonly<Config>;
     services: ReturnType<typeof createServices>;
     modules: ReturnType<typeof createModules>;
     api: ReturnType<typeof createApi>;
 };
 
-export function createApp(config: Config): App {
+export function createServer(config: Config): Server {
     const services = createServices(config);
     const modules = createModules(config, services);
     const api = createApi(config, services, modules);
@@ -281,7 +281,7 @@ The `modules` object is built incrementally. To prevent circular dependency issu
 
 ### 4.1. Config (`src/config.ts`)
 
-Environment variables are read here using `EnvReader` from `@atom-forge/env-reader`. The resulting `config` object is exported and used to create the app.
+Environment variables are read here using `EnvReader` from `@atom-forge/env-reader`. The resulting `config` object is exported and used to create the server.
 
 ```typescript
 // src/config.ts
@@ -289,7 +289,7 @@ import {configDotenv} from "dotenv";
 import path from "node:path";
 import {fileURLToPath} from "node:url";
 import {EnvReader} from "@atom-forge/env-reader";
-import type {Config} from "$lib/app/config";
+import type {Config} from "$lib/server/config";
 
 configDotenv();
 
@@ -305,20 +305,22 @@ export const config: Config = {
 
 ### 4.2. Entry Point (`src/hooks.server.ts`)
 
-`createApp(config)` is called once here. The `app` object is attached to `event.locals` so all server-side code (load functions, actions, RPC handlers) can access it.
+`createServer(config)` is called once here. Its `config`, `services`, and `modules` are injected into `event.locals` so all server-side code (load functions, actions) can access them. The `api` field is used locally to wire the RPC handler and is not exposed via locals.
 
 ```typescript
 // src/hooks.server.ts
 import type {Handle} from '@sveltejs/kit';
 import {createHandler} from '@atom-forge/rpc';
-import {createApp} from '$lib/app';
+import {createServer} from '$lib/server';
 import {config} from './config';
 
-const app = createApp(config);
-const rpcHandler = createHandler(app.api, '/api');
+const server = createServer(config);
+const rpcHandler = createHandler(server.api, '/api');
 
 export const handle: Handle = async ({event, resolve}) => {
-    event.locals.app = app;
+    event.locals.config = server.config;
+    event.locals.services = server.services;
+    event.locals.modules = server.modules;
     if (rpcHandler.match(event.request)) return rpcHandler.handle(event.request);
     return resolve(event);
 };
@@ -330,25 +332,25 @@ export const handle: Handle = async ({event, resolve}) => {
 
 ```
 src/
-├── config.ts                             # Reads env vars, builds and exports the Config object
-├── hooks.server.ts                       # Calls createApp(), wires RPC handler, injects app into locals
+├── config.ts                               # Reads env vars, builds and exports the Config object
+├── hooks.server.ts                         # Calls createServer(), wires RPC handler, injects into locals
 │
 └── lib/
-    └── app/
-        ├── index.ts                      # App type + createApp()
-        ├── config.ts                     # Config type (intersection of all component configs)
+    └── server/
+        ├── index.ts                        # Server type + createServer()
+        ├── config.ts                       # Config type (intersection of all component configs)
         │
         ├── services/
-        │   ├── index.ts                  # Services type + createServices()
-        │   └── prisma.ts                 # createPrismaService() + PrismaConfig
+        │   ├── index.ts                    # Services type + createServices()
+        │   └── prisma.ts                   # createPrismaService() + PrismaConfig
         │
         ├── modules/
-        │   ├── index.ts                  # Modules type + createModules()
-        │   └── user.ts                   # createUserModule()
+        │   ├── index.ts                    # Modules type + createModules()
+        │   └── user.ts                     # createUserModule()
         │
         └── api/
-            ├── index.ts                  # Api type + createApi()
-            └── user.ts                   # createUserApi()
+            ├── index.ts                    # Api type + createApi()
+            └── user.ts                     # createUserApi()
 ```
 
 **Key files:**
@@ -356,36 +358,36 @@ src/
 | File | Role |
 |---|---|
 | `src/config.ts` | Reads env vars using `EnvReader`, exports the `config` object. |
-| `src/hooks.server.ts` | Creates the app singleton, wires RPC, injects `app` into `event.locals`. |
-| `src/lib/app/index.ts` | `App` type and `createApp()`. |
-| `src/lib/app/config.ts` | `Config` type — intersection of all `...Config` types. |
-| `src/lib/app/services/index.ts` | `Services` type and `createServices()`. |
-| `src/lib/app/modules/index.ts` | `Modules` type and `createModules()`. |
-| `src/lib/app/api/index.ts` | `Api` type and `createApi()`. |
-| `src/lib/app/services/<name>.ts` | One service per file. Exports factory + `...Config` type. |
-| `src/lib/app/modules/<name>.ts` | One module per file (or directory). Exports factory. |
-| `src/lib/app/api/<name>.ts` | One Api handler group per file. Exports factory. No business logic. |
+| `src/hooks.server.ts` | Creates the server singleton, wires RPC, injects `config`/`services`/`modules` into `event.locals`. |
+| `src/lib/server/index.ts` | `Server` type and `createServer()`. |
+| `src/lib/server/config.ts` | `Config` type — intersection of all `...Config` types. |
+| `src/lib/server/services/index.ts` | `Services` type and `createServices()`. |
+| `src/lib/server/modules/index.ts` | `Modules` type and `createModules()`. |
+| `src/lib/server/api/index.ts` | `Api` type and `createApi()`. |
+| `src/lib/server/services/<name>.ts` | One service per file. Exports factory + `...Config` type. |
+| `src/lib/server/modules/<name>.ts` | One module per file (or directory). Exports factory. |
+| `src/lib/server/api/<name>.ts` | One Api handler group per file. Exports factory. No business logic. |
 
 ---
 
 ## 6. How-To Guides
 
 ### Adding a New Service
-1. **Create Factory:** Create `src/lib/app/services/newService.ts`. Implement `createNewService(config: Config, services: Services)` and export a `NewServiceConfig` type.
-2. **Update `src/lib/app/config.ts`:** Import `NewServiceConfig` and add it to the `Config` intersection.
-3. **Update `src/lib/app/services/index.ts` — Type:** Add `newService: ReturnType<typeof createNewService>` to the `Services` type.
-4. **Update `src/lib/app/services/index.ts` — Instantiation:** Call `services.newService = createNewService(config, services)` inside `createServices()`.
+1. **Create Factory:** Create `src/lib/server/services/newService.ts`. Implement `createNewService(config: Config, services: Services)` and export a `NewServiceConfig` type.
+2. **Update `src/lib/server/config.ts`:** Import `NewServiceConfig` and add it to the `Config` intersection.
+3. **Update `src/lib/server/services/index.ts` — Type:** Add `newService: ReturnType<typeof createNewService>` to the `Services` type.
+4. **Update `src/lib/server/services/index.ts` — Instantiation:** Call `services.newService = createNewService(config, services)` inside `createServices()`.
 5. **Update `src/config.ts`:** Add the necessary env variables to the `config` object using `EnvReader`.
 
 ### Adding a New Module
-1. **Create Factory:** Create `src/lib/app/modules/newModule.ts`. Implement `createNewModule(config: Config, services: Services, modules: Modules)`.
-2. **Update `src/lib/app/modules/index.ts` — Type:** Add `newModule: ReturnType<typeof createNewModule>` to the `Modules` type.
-3. **Update `src/lib/app/modules/index.ts` — Instantiation:** Call `modules.newModule = createNewModule(config, services, modules)` inside `createModules()`.
+1. **Create Factory:** Create `src/lib/server/modules/newModule.ts`. Implement `createNewModule(config: Config, services: Services, modules: Modules)`.
+2. **Update `src/lib/server/modules/index.ts` — Type:** Add `newModule: ReturnType<typeof createNewModule>` to the `Modules` type.
+3. **Update `src/lib/server/modules/index.ts` — Instantiation:** Call `modules.newModule = createNewModule(config, services, modules)` inside `createModules()`.
 
 ### Adding a New Api Handler Group
-1. **Create Factory:** Create `src/lib/app/api/newGroup.ts`. Implement `createNewGroupApi(config: Config, services: Services, modules: Modules)` using `rpc` helpers.
-2. **Update `src/lib/app/api/index.ts` — Type:** Add `newGroup: ReturnType<typeof createNewGroupApi>` to the `Api` type.
-3. **Update `src/lib/app/api/index.ts` — Instantiation:** Call `api.newGroup = createNewGroupApi(config, services, modules)` inside `createApi()`.
+1. **Create Factory:** Create `src/lib/server/api/newGroup.ts`. Implement `createNewGroupApi(config: Config, services: Services, modules: Modules)` using `rpc` helpers.
+2. **Update `src/lib/server/api/index.ts` — Type:** Add `newGroup: ReturnType<typeof createNewGroupApi>` to the `Api` type.
+3. **Update `src/lib/server/api/index.ts` — Instantiation:** Call `api.newGroup = createNewGroupApi(config, services, modules)` inside `createApi()`.
 
 ---
 
@@ -415,4 +417,4 @@ src/
 | 12 | The main `Config` type in `src/lib/app/config.ts` is purely an intersection of component configs. |
 | 13 | Read all environment variables through the `EnvReader` class from `@atom-forge/env-reader`, never `process.env` directly. |
 | 14 | Do NOT use `try-catch` to swallow business errors. Throw custom errors (e.g., `BadRequestError` from `src/lib/errors.ts`). |
-| 15 | The `app` object is created once in `hooks.server.ts` and accessed via `event.locals.app`. Never instantiate services, modules, or api elsewhere. |
+| 15 | The `server` object is created once in `hooks.server.ts`. Its `config`, `services`, and `modules` are injected into `event.locals`; its `api` is used locally. Never instantiate services, modules, or api elsewhere. |

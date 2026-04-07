@@ -1,7 +1,7 @@
-import type {Config} from "$lib/app/config";
+import type {Config} from "$lib/server/config";
 import type {Services} from "../services";
-import {createUserApi} from "$lib/app/api/user";
-import type {Modules} from "$lib/app/modules";
+import {createUserApi} from "$lib/server/api/user";
+import type {Modules} from "$lib/server/modules";
 
 export type Api = {
 	user: ReturnType<typeof createUserApi>;

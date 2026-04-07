@@ -4,7 +4,9 @@ declare global {
 	namespace App {
 		// interface Error {}
 		interface Locals {
-			app: import('$lib/app').App;
+			config: import('$lib/server').Server['config'];
+			services: import('$lib/server').Server['services'];
+			modules: import('$lib/server').Server['modules'];
 		}
 		// interface PageData {}
 		// interface PageState {}

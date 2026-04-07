@@ -2,7 +2,7 @@ import {configDotenv} from "dotenv";
 import path from "node:path";
 import {fileURLToPath} from "node:url";
 import {EnvReader} from "@atom-forge/env-reader";
-import type {Config} from "$lib/app/config";
+import type {Config} from "$lib/server/config";
 
 configDotenv();
 
