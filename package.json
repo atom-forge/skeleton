@@ -1,0 +1,48 @@
+{
+	"name": "skeleton",
+	"private": true,
+	"version": "0.0.1",
+	"type": "module",
+	"scripts": {
+		"dev": "vite dev",
+		"build": "vite build",
+		"preview": "vite preview",
+		"prepare": "svelte-kit sync || echo ''",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+		"db:create": "createdb skeleton || echo 'Database already exists'",
+		"db:drop": "dropdb skeleton || echo 'Database does not exist'",
+		"db:migrate": "prisma migrate dev",
+		"db:migrate:deploy": "prisma migrate deploy",
+		"db:push": "prisma db push",
+		"db:pull": "prisma db pull",
+		"db:reset": "prisma migrate reset",
+		"db:studio": "prisma studio",
+		"db:generate": "prisma generate",
+		"db:seed": "prisma db seed"
+	},
+	"devDependencies": {
+		"@sveltejs/adapter-auto": "^7.0.1",
+		"@sveltejs/kit": "^2.56.1",
+		"@sveltejs/vite-plugin-svelte": "^6.2.4",
+		"@tailwindcss/forms": "^0.5.11",
+		"@tailwindcss/typography": "^0.5.19",
+		"@tailwindcss/vite": "^4.2.2",
+		"svelte": "^5.55.1",
+		"svelte-check": "^4.4.6",
+		"tailwindcss": "^4.2.2",
+		"typescript": "^5.9.3",
+		"vite": "^7.3.2",
+		"@atom-forge/env-reader": "^0.1.0",
+		"@atom-forge/rpc": "^0.3.10",
+		"@atom-forge/svelte-helpers": "^0.0.1",
+		"@atom-forge/ui": "^0.0.29",
+		"@atom-forge/attachment": "^0.1.3",
+		"@prisma/adapter-pg": "^7.6.0",
+		"prisma": "^7.6.0",
+		"tsx": "^4.21.0"
+	},
+	"dependencies": {
+		"@prisma/client": "^7.6.0"
+	}
+}
