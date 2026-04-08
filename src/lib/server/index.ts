@@ -15,5 +15,6 @@ export function createServer(config: Config): Server {
 	const services = createServices(config);
 	const modules = createModules(config, services);
 	const api = createApi(config, services, modules);
+	services.handlers.api.wire(api);
 	return {config, services, modules, api};
 }

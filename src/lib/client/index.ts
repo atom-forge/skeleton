@@ -2,9 +2,10 @@ import {getContext, setContext} from 'svelte';
 import type {ClientConfig} from '$lib/client/config';
 import {createClientServices} from '$lib/client/services';
 import {createClientModules} from '$lib/client/modules';
+import type {DeepReadonly} from "@atom-forge/env-reader";
 
 export type ClientApp = {
-	config: ClientConfig;
+	config: DeepReadonly<ClientConfig>;
 	services: ReturnType<typeof createClientServices>;
 	modules: ReturnType<typeof createClientModules>;
 };
