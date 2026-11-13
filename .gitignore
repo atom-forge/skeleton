@@ -22,7 +22,5 @@ Thumbs.db
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
-
-# Runtime
-/var/*
-!/var/**/.gitkeep
+# Uploaded files kept on disk when no S3 bucket is set
+/var/

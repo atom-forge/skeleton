@@ -1,0 +1,7 @@
+/* Tailwind + az @atom-forge/ui témája. */
+@import 'tailwindcss';
+@import '../../node_modules/@atom-forge/ui/dist/core/theme.css';
+
+/* a könyvtár komponenseinek osztályai a node_modules-ban vannak: a Tailwind alapból nem nézi át */
+@source '../../node_modules/@atom-forge/ui/dist';
+@source '.';

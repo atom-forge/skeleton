@@ -1,12 +1,10 @@
-import type {Handle} from '@sveltejs/kit';
-import {createServer} from '$lib/server';
-import {config} from './config';
+import type { Handle } from '@sveltejs/kit/hooks';
 
-const server = createServer(config);
-
-export const handle: Handle = async ({event, resolve}) => {
-	event.locals.config = server.config;
-	event.locals.services = server.services;
-	event.locals.modules = server.modules;
-	return await server.services.handlers.handle(event.request, ()=>resolve(event));
+// Minden kliens–szerver hívás RPC (/rpc); a többi kérést a SvelteKit szolgálja ki.
+export const handle: Handle = async ({ event, resolve }) => {
+	if (event.url.pathname === '/rpc' || event.url.pathname.startsWith('/rpc/')) {
+		const { rpcHandler } = await import('#server/rpc-handler');
+		if (rpcHandler.match(event.request)) return rpcHandler.handle(event.request);
+	}
+	return resolve(event);
 };

@@ -1,16 +1,17 @@
 <script lang="ts">
-	import './layout.css';
-	import favicon from '$lib/assets/favicon.svg';
+	import './app.css';
 	import { Root } from '@atom-forge/ui';
-	import { setClientApp } from '$lib/client';
-	import { createClientConfig } from '$lib/client/config';
+	import favicon from './(+lib)/assets/favicon.svg';
+	import type { LayoutProps } from './$types';
 
-	let { children } = $props();
-
-	setClientApp(createClientConfig());
+	let { children }: LayoutProps = $props();
 </script>
 
-<svelte:head><link rel="icon" href={favicon} /></svelte:head>
+<svelte:head>
+	<link rel="icon" href={favicon} />
+</svelte:head>
+
+<!-- a Root adja a témát és az overlay-kezelőket (modal, drawer, toast): az egész alkalmazásban egy van belőle -->
 <Root>
 	{@render children()}
 </Root>
