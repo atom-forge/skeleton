@@ -1,4 +1,4 @@
-# wiki
+# skeleton
 
 SvelteKit (Svelte 5, runes) + `@atom-forge/rpc` + Prisma 8 (PostgreSQL) + Tailwind 4 + `@atom-forge/ui`, Bun alatt.
 
